@@ -1,0 +1,27 @@
+{
+  "question": "Predict content page decline risk from prior-60-day performance signals",
+  "data_source": "FlyRank internship-warehouse (Hugging Face)",
+  "feature_window": "March 2026 (prior 60 days)",
+  "label_window": "April 2026 (next 30 days)",
+  "train_clients": 27,
+  "test_clients": 10,
+  "total_rows": 86394,
+  "base_rate": 0.7060758440772809,
+  "results": {
+    "week4_rule_baseline": {
+      "precision_at_20": 0.7,
+      "precision_at_50": 0.72
+    },
+    "random_forest_final": {
+      "precision_at_20": 0.95,
+      "precision_at_50": 0.9
+    }
+  },
+  "action_distribution": {
+    "monitor": 15346,
+    "monitor_closely": 6725,
+    "expand_or_promote": 1949,
+    "refresh_now": 1853,
+    "refresh_soon": 576
+  }
+}
