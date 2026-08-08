@@ -1,0 +1,22 @@
+{
+  "model": "RandomForestClassifier (n_estimators=200)",
+  "train_clients": 27,
+  "total_pages_scored": 26449,
+  "action_distribution": {
+    "monitor": 15313,
+    "monitor_closely": 6679,
+    "expand_or_promote": 1978,
+    "refresh_now": 1885,
+    "refresh_soon": 594
+  },
+  "feature_window": "March 2026 (prior 60 days)",
+  "label_window": "April 2026",
+  "precision_at_20_vs_baseline": {
+    "model": 0.85,
+    "week4_rule_baseline": 0.7
+  },
+  "march_vs_april_avg_impressions_per_page": {
+    "march_prev30": 3061.000333639169,
+    "april_total": 806.4323525838552
+  }
+}
