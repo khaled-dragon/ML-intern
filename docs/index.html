@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reading the Decline Before It Shows: Predicting Content Decay in Search Performance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c2321;
+    --ink-soft:#4a544f;
+    --paper:#f1f0ea;
+    --paper-raised:#fbfaf6;
+    --rule:#d8d6cc;
+    --decline:#a63d2b;
+    --growth:#3c6e52;
+    --accent:#2b4c6f;
+    --max:760px;
+    --wide:980px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    font-size:17px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--decline);color:var(--paper-raised);}
+
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 24px;}
+  .wide{max-width:var(--wide);margin:0 auto;padding:0 24px;}
+
+  h1,h2,h3{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    line-height:1.15;
+    color:var(--ink);
+  }
+  h2{font-size:1.9rem;margin:0 0 .5rem;}
+  h3{font-size:1.25rem;margin:1.6rem 0 .5rem;font-weight:600;}
+  p{margin:0 0 1.05rem;}
+  a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:2px;}
+  a:hover{color:var(--decline);}
+  code{
+    font-family:'IBM Plex Mono',monospace;
+    background:var(--paper-raised);
+    border:1px solid var(--rule);
+    padding:.1em .35em;
+    border-radius:4px;
+    font-size:.88em;
+  }
+
+  /* Hero */
+  .hero{
+    padding:6.5rem 0 4rem;
+    border-bottom:1px solid var(--rule);
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.78rem;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:1.2rem;
+  }
+  .eyebrow span{color:var(--decline);}
+  h1{
+    font-size:clamp(2.1rem,4.6vw,3.15rem);
+    max-width:14ch;
+    margin:0 0 1.6rem;
+  }
+  .hero-meta{
+    display:flex;
+    gap:2rem;
+    flex-wrap:wrap;
+    margin-top:2.4rem;
+    padding-top:1.6rem;
+    border-top:1px solid var(--rule);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.82rem;
+    color:var(--ink-soft);
+  }
+  .hero-meta strong{display:block;color:var(--ink);font-size:1rem;font-family:'Inter',sans-serif;font-weight:600;}
+
+  /* Trend rule divider - signature element */
+  .trend-rule{
+    width:100%;
+    height:34px;
+    margin:0;
+    display:block;
+  }
+  .trend-rule.down path{stroke:var(--decline);}
+  .trend-rule.up path{stroke:var(--growth);}
+
+  section{padding:3.4rem 0;border-bottom:1px solid var(--rule);}
+  section:last-of-type{border-bottom:none;}
+
+  .kicker{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.75rem;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:.6rem;
+  }
+
+  .abstract-box{
+    background:var(--paper-raised);
+    border:1px solid var(--rule);
+    border-left:3px solid var(--decline);
+    padding:1.8rem 2rem;
+    border-radius:2px;
+    font-size:1.02rem;
+  }
+  .abstract-box p{margin:0;}
+
+  .callout{
+    background:var(--paper-raised);
+    border:1px solid var(--rule);
+    border-radius:4px;
+    padding:1.4rem 1.6rem;
+    margin:1.4rem 0;
+  }
+  .callout.tension{border-left:3px solid var(--decline);}
+  .callout.resolution{border-left:3px solid var(--growth);}
+
+  figure{margin:1.8rem 0;}
+  figure img{
+    width:100%;
+    border:1px solid var(--rule);
+    border-radius:4px;
+    display:block;
+    background:var(--paper-raised);
+  }
+  figcaption{
+    font-size:.88rem;
+    color:var(--ink-soft);
+    margin-top:.6rem;
+    font-style:italic;
+  }
+  figcaption strong{font-style:normal;color:var(--ink);}
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.4rem 0;
+    font-size:.94rem;
+  }
+  th,td{
+    text-align:left;
+    padding:.65rem .8rem;
+    border-bottom:1px solid var(--rule);
+  }
+  th{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.75rem;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--ink-soft);
+    font-weight:500;
+  }
+  td.num,th.num{font-family:'IBM Plex Mono',monospace;text-align:right;}
+  tr.highlight td{background:rgba(60,110,82,.08);font-weight:600;}
+
+  .stat-row{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:1.2rem;
+    margin:1.6rem 0;
+  }
+  .stat{
+    border:1px solid var(--rule);
+    background:var(--paper-raised);
+    padding:1.1rem 1.2rem;
+    border-radius:4px;
+  }
+  .stat .n{
+    font-family:'Fraunces',serif;
+    font-size:1.9rem;
+    font-weight:600;
+    display:block;
+    color:var(--ink);
+  }
+  .stat .n.down{color:var(--decline);}
+  .stat .n.up{color:var(--growth);}
+  .stat .lbl{font-size:.82rem;color:var(--ink-soft);}
+
+  ol.reco{list-style:none;padding:0;margin:1.4rem 0;counter-reset:reco;}
+  ol.reco li{
+    counter-increment:reco;
+    position:relative;
+    padding:1rem 1rem 1rem 3.2rem;
+    border:1px solid var(--rule);
+    border-radius:4px;
+    background:var(--paper-raised);
+    margin-bottom:.9rem;
+  }
+  ol.reco li::before{
+    content:counter(reco);
+    position:absolute;
+    left:1rem;
+    top:1rem;
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:1.1rem;
+    color:var(--decline);
+  }
+  ol.reco li h4{margin:0 0 .3rem;font-size:1.02rem;font-family:'Inter',sans-serif;font-weight:600;}
+  ol.reco li p{margin:0;font-size:.92rem;color:var(--ink-soft);}
+  .tag{
+    display:inline-block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.7rem;
+    padding:.15em .5em;
+    border-radius:3px;
+    margin-left:.5rem;
+    vertical-align:middle;
+  }
+  .tag.hi{background:rgba(166,61,43,.12);color:var(--decline);}
+  .tag.lo{background:rgba(60,110,82,.12);color:var(--growth);}
+
+  ul.limits{padding-left:0;list-style:none;}
+  ul.limits li{
+    padding:.7rem 0 .7rem 1.6rem;
+    border-bottom:1px solid var(--rule);
+    position:relative;
+  }
+  ul.limits li:last-child{border-bottom:none;}
+  ul.limits li::before{
+    content:"–";
+    position:absolute;
+    left:0;
+    color:var(--decline);
+  }
+
+  footer{
+    padding:3rem 0 5rem;
+    text-align:center;
+  }
+  .credit-box{
+    background:var(--paper-raised);
+    border:1px solid var(--rule);
+    border-radius:4px;
+    padding:1.6rem;
+    display:inline-block;
+    max-width:500px;
+  }
+  .credit-box a{font-weight:600;}
+
+  nav.toc{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.78rem;
+    display:flex;
+    flex-wrap:wrap;
+    gap:0 1.4rem;
+    padding:1rem 0;
+    border-bottom:1px solid var(--rule);
+    color:var(--ink-soft);
+  }
+  nav.toc a{color:var(--ink-soft);}
+  nav.toc a:hover{color:var(--decline);}
+
+  @media (max-width:640px){
+    .hero{padding:4rem 0 2.5rem;}
+    section{padding:2.4rem 0;}
+    .stat-row{grid-template-columns:repeat(2,1fr);}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav class="toc">
+    <a href="#intro">Introduction</a>
+    <a href="#data">Data</a>
+    <a href="#method">Methodology</a>
+    <a href="#results">Results</a>
+    <a href="#limits">Limitations</a>
+    <a href="#recs">Recommendations</a>
+    <a href="#repro">Reproducibility</a>
+  </nav>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">FlyRank ML Internship <span>&middot;</span> Capstone Research Paper <span>&middot;</span> 2026</div>
+    <h1>Reading the decline before it shows</h1>
+    <p style="font-size:1.15rem;color:var(--ink-soft);max-width:52ch;">Predicting which content pages are about to lose search traffic, using two months of performance history and a client-grouped validation design built to catch its own mistakes.</p>
+
+    <div class="abstract-box" style="margin-top:2.4rem;">
+      <div class="kicker">Abstract</div>
+      <p>Can a page's recent search performance signal that it is about to lose traffic, before the drop is already visible in a monthly report? This study draws 86,394 content-page snapshots from 37 clients in FlyRank's internship search warehouse, using two prior months of impressions, clicks, and ranking position to forecast a decline over the following 30 days. A Random Forest classifier, validated on a client-grouped holdout so that no single client's pages appear in both training and test, is compared against a hand-written triage rule on the identical split. The model reaches a precision of 0.95 among its top 20 flagged pages, against 0.70 for the rule, and keeps a comparable edge through the top 50. The result is not a claim about how any search engine ranks pages. It is a decision-support signal a content team can use to prioritize a review queue that is otherwise too large to work through by hand.</p>
+    </div>
+
+    <div class="hero-meta">
+      <div><strong>86,394</strong>page-month snapshots</div>
+      <div><strong>37</strong>clients in training panel</div>
+      <div><strong>0.95</strong>precision@20, final model</div>
+      <div><strong>2 months</strong>feature to outcome window</div>
+    </div>
+  </div>
+</header>
+
+<svg class="trend-rule down" viewBox="0 0 800 34" preserveAspectRatio="none"><path d="M0,10 L100,10 L140,24 L220,24 L260,6 L340,6 L380,20 L460,20 L500,14 L580,14 L620,26 L700,26 L740,16 L800,16" fill="none" stroke-width="2"/></svg>
+
+<main>
+
+<section id="intro">
+  <div class="wrap">
+    <div class="kicker">01 &middot; Introduction</div>
+    <h2>The rule content teams already use, and where it stops working</h2>
+    <p>Most content review is built on a simple and reasonable rule: old pages decay, so review the oldest ones first. It is the assumption behind almost every editorial refresh calendar, and it is intuitive enough that nobody thinks to check it.</p>
+
+    <div class="callout tension">
+      <strong>The obvious rule fails, and the data says why.</strong> Earlier work on this same panel, comparing pages by trend direction, found that declining pages had a lower median age (216 days) than stable pages (300 days). Age alone was pointing the wrong way. Whatever was driving the decline, it was not simply the passage of time.
+    </div>
+
+    <p>That single reversal is the reason this project exists. If age is not the signal, something else in a page's recent behavior probably is, and a model that can read several signals together should outperform a rule that reads one signal alone. The question this paper answers is narrow on purpose: given a page's search performance over the prior two months, can a model flag the pages worth reviewing this week, better than a simple hand-written score can?</p>
+
+    <p>The decision this supports is small and concrete. A content strategist with limited review time each week needs to know where to look first. A false alarm costs them a wasted review. A missed decline costs them traffic that is harder to win back the longer it goes unnoticed. Framed that way, this is a ranking problem before it is anything else: not "will this page decline," but "which pages deserve attention first."</p>
+  </div>
+</section>
+
+<section id="data">
+  <div class="wrap">
+    <div class="kicker">02 &middot; Data</div>
+    <h2>What the model sees, and what it deliberately does not</h2>
+    <p>This study uses the <code>fact_content_daily_performance</code> table from FlyRank's internship warehouse release, a pseudonymized, per-day record of search performance for each content page across a panel of internship clients. Two calendar months anchor the analysis: <strong>March 2026</strong> supplies the feature window, and <strong>April 2026</strong> supplies the outcome window the label is built from.</p>
+
+    <div class="stat-row">
+      <div class="stat"><span class="n">86,394</span><span class="lbl">page-client rows analyzed</span></div>
+      <div class="stat"><span class="n">37</span><span class="lbl">clients with sufficient history</span></div>
+      <div class="stat"><span class="n">60 days</span><span class="lbl">feature window (Feb–Mar)</span></div>
+      <div class="stat"><span class="n">30 days</span><span class="lbl">outcome window (April)</span></div>
+    </div>
+
+    <h3>What was excluded, and why</h3>
+    <p>Two exclusions shaped this dataset more than any inclusion did. The <code>fact_content_daily_performance_sample</code> table was set aside entirely for label design: it covers only the final month of the release, which is the natural outcome window for any past-to-future label, and using it would have meant testing on the same data used to define success.</p>
+    <p>The query-level table, <code>fact_content_query_90d</code>, was tested as a feature source and rejected. Its fixed 90-day window runs from April 2 to June 30, overlapping directly with the outcome month this study predicts. Any feature built from it would have let the model see into the period it was supposed to be forecasting. That table is not used anywhere in the final model.</p>
+    <p>Clients with fewer than 60 days of history inside the panel were also dropped, since the feature design needs both a prior-30 and a prior-60 window fully populated to compute momentum. No client names, domains, or raw queries appear anywhere in this paper or its underlying notebooks.</p>
+  </div>
+</section>
+
+<section id="method">
+  <div class="wrap">
+    <div class="kicker">03 &middot; Methodology</div>
+    <h2>Five features, one honest split, two leaks caught and removed</h2>
+
+    <h3>The label</h3>
+    <p>A page is labeled <strong>declining</strong> if its April impressions fall more than 20% below its March impressions. This is an operational proxy, not a definition of quality. A page can drop 20% and still be a fine page; a page can hold steady while quietly losing relevance the label cannot see.</p>
+
+    <h3>Five features, each independently timed</h3>
+    <table>
+      <thead><tr><th>Feature</th><th>What it captures</th><th>Why it's safe</th></tr></thead>
+      <tbody>
+        <tr><td><code>imp_prev30</code></td><td>Impressions, last 30 days of March</td><td>Aggregated only from dates before April 1</td></tr>
+        <tr><td><code>pos_prev30</code></td><td>Average search position, last 30 days</td><td>Same window restriction</td></tr>
+        <tr><td><code>ctr_prev30</code></td><td>Click-through rate, last 30 days</td><td>Same window restriction</td></tr>
+        <tr><td><code>momentum_ratio</code></td><td>Last 30 days' impressions vs. the 30 before them</td><td>Both halves end before April</td></tr>
+        <tr><td><code>pos_volatility</code></td><td>Standard deviation of daily position, last 30 days</td><td>Computed inside the March window only</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Validation: grouped by client, not by row</h3>
+    <p>Pages were split into training and test sets using <code>GroupShuffleSplit</code> on client ID, so that no client's pages appear on both sides of the split. A random row-level split would let the model partly memorize a client's specific traffic patterns rather than learn a signal that generalizes to a client it has never seen, which is the actual question a decision-support tool needs to answer.</p>
+
+    <div class="callout resolution">
+      <strong>Two leaks were found and removed before this result was trusted.</strong> The first attempt at adding query-mix features pushed precision toward 0.99, a number too clean to believe. Tracing it back showed the query table's window overlapped the outcome month directly. The features were dropped, not patched, and the model was rebuilt on signals with a window boundary that could be checked and defended.
+    </div>
+
+    <h3>The baseline</h3>
+    <p>The comparison point is a hand-written rule from an earlier stage of this project: a score built from mid-range traffic volume and decent search position, thresholds chosen by inspection rather than learned. It is evaluated on the exact same client-grouped test split as the model, so the comparison in the next section is apples to apples.</p>
+  </div>
+</section>
+
+<svg class="trend-rule up" viewBox="0 0 800 34" preserveAspectRatio="none"><path d="M0,26 L100,26 L140,12 L220,12 L260,30 L340,30 L380,16 L460,16 L500,22 L580,22 L620,10 L700,10 L740,20 L800,20" fill="none" stroke-width="2"/></svg>
+
+<section id="results">
+  <div class="wrap">
+    <div class="kicker">04 &middot; Results</div>
+    <h2>The model outperforms the rule, on the same held-out clients</h2>
+    <p>Base rate on the held-out test set (10 clients, unseen during training) was 0.706: about seven in ten pages in this slice were, by the 20% threshold, declining. Against that backdrop, the Random Forest model outperformed the hand-written rule at both cutoffs that matter for a limited weekly review queue.</p>
+
+    <table>
+      <thead><tr><th>Method</th><th class="num">Precision@20</th><th class="num">Precision@50</th></tr></thead>
+      <tbody>
+        <tr><td>Week-4 rule baseline</td><td class="num">0.70</td><td class="num">0.72</td></tr>
+        <tr class="highlight"><td>Random Forest (final model)</td><td class="num">0.95</td><td class="num">0.90</td></tr>
+      </tbody>
+    </table>
+
+    <figure>
+      <img src="img/results_chart.png" alt="Bar chart comparing precision at 20 and 50 for the Week-4 rule baseline versus the Random Forest model, both measured on the same client-grouped test split">
+      <figcaption><strong>Model vs. baseline, same split.</strong> The dashed line marks the base rate (0.706). Both methods clear it; the model clears it by a wider margin at both cutoffs.</figcaption>
+    </figure>
+
+    <p>Permutation importance on the final model pointed to <code>ctr_prev30</code> and <code>pos_volatility</code>, the stability of a page's click-through rate and ranking, as the strongest contributors, ahead of <code>momentum_ratio</code>, the feature the momentum hypothesis was originally built around. Stability of recent performance carried more weight than the direction of recent change alone, an observed pattern in this sample rather than a general rule about search.</p>
+
+    <p>Reviewing individual errors, the clearest false negatives were pages with strong signals across the board, healthy traffic, good position, mild positive momentum, that still declined in April. That pattern suggests some declines come from causes outside these five features entirely: a competitor's new page, a seasonal shift, an update elsewhere on the site. No amount of tuning on this feature set alone would close that gap; it marks a real edge of what this model can see.</p>
+  </div>
+</section>
+
+<section id="limits">
+  <div class="wrap">
+    <div class="kicker">05 &middot; Limitations &amp; Honest Framing</div>
+    <h2>What this work cannot claim</h2>
+    <ul class="limits">
+      <li>This is an observational study over one two-month window on one client panel. It shows a correlational pattern between prior signals and later decline, not proof that any specific action causes recovery.</li>
+      <li>The 0.95 / 0.90 precision figures come from a test set of only 10 clients. With a panel this small, the exact decimal is sensitive to which clients happened to land in the held-out group. The consistent finding across repeated runs of this pipeline is that the model beats the rule by a meaningful margin, not the third decimal place.</li>
+      <li>The model's decline score is a relative rank within this sample, not a calibrated real-world probability. A score of 0.94 should be read as "near the top of this queue," not "94% likely."</li>
+      <li>The model has no visibility into competitor activity, search-engine algorithm changes, or a client's own business priorities. A page it scores as low-risk can still need attention for reasons it cannot see.</li>
+      <li>Nothing here describes how any search engine's ranking algorithm works. Every finding is a pattern observed in this dataset, stated as directional and decision-support, not causal or universal.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="recs">
+  <div class="wrap">
+    <div class="kicker">06 &middot; Ranked Recommendations</div>
+    <h2>From a score to a queue a person can actually work through</h2>
+    <p>A probability alone is not a to-do list. The final model's output was translated into five plain-language actions with inspectable reason codes, so a reviewer can see why a page landed where it did rather than trusting a black-box number.</p>
+
+    <figure>
+      <img src="img/action_distribution.png" alt="Bar chart showing the distribution of pages across five action categories: monitor, monitor closely, expand or promote, refresh now, and refresh soon">
+      <figcaption><strong>Action distribution across the scored panel.</strong> Most pages need no urgent action; a focused minority carries the real priority.</figcaption>
+    </figure>
+
+    <ol class="reco">
+      <li>
+        <h4>Refresh now <span class="tag hi">highest priority</span></h4>
+        <p>High predicted decline risk on pages that still carry meaningful traffic (300+ monthly impressions). These pages have proven demand worth protecting before the drop compounds.</p>
+      </li>
+      <li>
+        <h4>Refresh soon <span class="tag hi">lower urgency</span></h4>
+        <p>High predicted decline risk, but on lower-traffic pages. Worth a look, but less is at stake if review is delayed a week.</p>
+      </li>
+      <li>
+        <h4>Expand or promote <span class="tag lo">investment candidate</span></h4>
+        <p>Positive momentum paired with low predicted risk. Good candidates for further investment: more internal links, more distribution, deeper coverage.</p>
+      </li>
+      <li>
+        <h4>Monitor closely</h4>
+        <p>An unstable ranking history with no clear signal yet. Not urgent, but worth a closer look than the default queue gets.</p>
+      </li>
+      <li>
+        <h4>Monitor</h4>
+        <p>No strong signal in either direction. The default, lowest-priority bucket, and by far the largest.</p>
+      </li>
+    </ol>
+
+    <div class="callout tension">
+      <strong>What should never be automated from this queue.</strong> No page should be deleted, merged, or redirected on the score alone, these actions are often irreversible and need editorial judgment. A <code>monitor</code> label is not the same as "definitely fine," and it should never suppress a page from future review. Nothing here should feed automated content generation without a human editor in the loop.
+    </div>
+  </div>
+</section>
+
+<section id="repro">
+  <div class="wrap">
+    <div class="kicker">07 &middot; Reproducibility</div>
+    <h2>Rerun it yourself</h2>
+    <p>Every number in this paper traces back to a notebook in the project repository, run top to bottom against the FlyRank internship warehouse with a fixed random seed (<code>random_state=42</code>) for the train/test split and the model.</p>
+    <table>
+      <thead><tr><th>Notebook</th><th>What it covers</th></tr></thead>
+      <tbody>
+        <tr><td><code>work/notebooks/w03_data_contract.ipynb</code></td><td>Data contract, grain verification, first leakage trap</td></tr>
+        <tr><td><code>work/notebooks/w04_baseline_score.ipynb</code></td><td>Hand-written rule baseline and signal checks</td></tr>
+        <tr><td><code>work/notebooks/w05_model.ipynb</code></td><td>Model training, the query-table leak found and removed</td></tr>
+        <tr><td><code>work/notebooks/w06_validation_audit.ipynb</code></td><td>Grouped-split audit, before/after comparison, claim review</td></tr>
+        <tr><td><code>work/notebooks/w07_action_playbook.ipynb</code></td><td>Action queue, reason codes, human-review rules</td></tr>
+        <tr><td><code>work/notebooks/capstone.ipynb</code></td><td>This paper's numbers and charts, end to end</td></tr>
+      </tbody>
+    </table>
+    <p>Full repository: <a href="https://github.com/khaled-dragon/ML-intern">github.com/khaled-dragon/ML-intern</a></p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="credit-box">
+      <div class="kicker" style="margin-bottom:.8rem;">Acknowledgments &amp; Data Credit</div>
+      <p style="margin:0;">Built on the <a href="https://flyrank.ai" target="_blank" rel="noopener">FlyRank ML Internship dataset</a>, a pseudonymized search-performance warehouse provided for this program. All figures in this paper are derived from that release; no client-identifying information appears anywhere in this work.</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
